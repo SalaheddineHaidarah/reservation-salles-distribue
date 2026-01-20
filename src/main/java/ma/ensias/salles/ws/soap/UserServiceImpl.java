@@ -1,29 +1,20 @@
 package ma.ensias.salles.ws.soap;
 
 import javax.jws.WebService;
-import java.util.HashMap;
-import java.util.Map;
+import ma.ensias.salles.dao.UserDAO;
+import ma.ensias.salles.model.User;
 
 @WebService(endpointInterface = "ma.ensias.salles.ws.soap.UserService")
 public class UserServiceImpl implements UserService {
 
-    // Simple in-memory user storage (username -> password)
-    private static final Map<String, String> users = new HashMap<>();
-
-    static {
-        // Add some default users
-        users.put("admin", "admin123");
-        users.put("user1", "pass1");
-        users.put("user2", "pass2");
-    }
+    private final UserDAO userDAO = new UserDAO();
 
     @Override
     public boolean authenticate(String username, String password) {
         if (username == null || password == null) {
             return false;
         }
-        String storedPassword = users.get(username);
-        return storedPassword != null && storedPassword.equals(password);
+        return userDAO.validateCredentials(username, password);
     }
 
     @Override
@@ -31,16 +22,18 @@ public class UserServiceImpl implements UserService {
         if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
             return false;
         }
-        if (users.containsKey(username)) {
+        if (userDAO.findByUsername(username).isPresent()) {
             return false; // User already exists
         }
-        users.put(username, password);
-        return true;
+        User u = new User();
+        u.setUsername(username);
+        u.setPassword(password);
+        u.setRole("user");
+        return userDAO.create(u);
     }
 
     @Override
     public boolean userExists(String username) {
-        return username != null && users.containsKey(username);
+        return username != null && userDAO.findByUsername(username).isPresent();
     }
 }
-

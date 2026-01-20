@@ -1,0 +1,27 @@
+### Create reservation (should FAIL – conflict)
+POST http://localhost:8081/api/reservations
+Content-Type: application/json
+
+{
+  "utilisateur": "test",
+  "salleId": 1,
+  "date": "2026-01-20",
+  "heureDebut": "10:30",
+  "heureFin": "11:30"
+}
+
+### Create reservation (should SUCCEED)
+POST http://localhost:8081/api/reservations
+Content-Type: application/json
+
+{
+  "utilisateur": "test",
+  "salleId": 1,
+  "date": "2026-01-20",
+  "heureDebut": "11:30",
+  "heureFin": "12:30"
+}
+
+### Get reservations for user
+GET http://localhost:8081/api/reservations/user/test
+

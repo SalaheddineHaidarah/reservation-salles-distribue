@@ -15,48 +15,28 @@ public class ReservationResource {
 
     private final ReservationManager manager = ReservationManager.getInstance();
 
-    @GET
-    public List<Reservation> getAllReservations() {
-        return manager.getReservations();
-    }
-
-    @GET
-    @Path("/user/{user}")
-    public List<Reservation> getReservationsByUser(@PathParam("user") String user) {
-        return manager.getReservationsByUser(user);
-    }
-
     @POST
-    public Response createReservation(
-            @QueryParam("salleId") int salleId,
-            @QueryParam("user") String user,
-            @QueryParam("date") String date,
-            @QueryParam("heureDebut") String heureDebut,
-            @QueryParam("heureFin") String heureFin) {
+    public Response reserver(Reservation r) {
+        boolean ok = manager.reserver(
+                r.getSalleId(),
+                r.getUtilisateur(),
+                r.getDate(),
+                r.getHeureDebut(),
+                r.getHeureFin()
+        );
 
-        boolean success = manager.reserver(salleId, user, date, heureDebut, heureFin);
-
-        if (success) {
-            return Response.status(Response.Status.CREATED)
-                    .entity("{\"message\":\"Reservation created successfully\"}")
+        if (!ok) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity("Salle not available")
                     .build();
         }
-        return Response.status(Response.Status.CONFLICT)
-                .entity("{\"error\":\"Reservation conflict or invalid data\"}")
-                .build();
+
+        return Response.status(Response.Status.CREATED).build();
     }
 
-    @DELETE
-    @Path("/{id}")
-    public Response cancelReservation(@PathParam("id") int id) {
-        boolean success = manager.annulerReservation(id);
-
-        if (success) {
-            return Response.ok("{\"message\":\"Reservation cancelled\"}").build();
-        }
-        return Response.status(Response.Status.NOT_FOUND)
-                .entity("{\"error\":\"Reservation not found\"}")
-                .build();
+    @GET
+    @Path("/user/{username}")
+    public List<Reservation> mesReservations(@PathParam("username") String user) {
+        return manager.getReservationsByUser(user);
     }
 }
-

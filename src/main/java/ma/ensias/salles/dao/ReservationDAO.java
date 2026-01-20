@@ -96,5 +96,40 @@ public class ReservationDAO {
 
         return list;
     }
-}
 
+    public List<Reservation> findAll() {
+        List<Reservation> list = new ArrayList<>();
+        String sql =
+                "SELECT id, utilisateur, salle_id, date_reservation, heure_debut, heure_fin " +
+                "FROM reservations ORDER BY date_reservation, heure_debut";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Reservation r = new Reservation();
+                r.setId(rs.getInt("id"));
+                r.setUtilisateur(rs.getString("utilisateur"));
+                r.setSalleId(rs.getInt("salle_id"));
+                r.setDate(rs.getString("date_reservation"));
+                r.setHeureDebut(rs.getString("heure_debut").substring(0,5));
+                r.setHeureFin(rs.getString("heure_fin").substring(0,5));
+                list.add(r);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public boolean deleteById(int id) {
+        String sql = "DELETE FROM reservations WHERE id = ?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            return ps.executeUpdate() == 1;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+}

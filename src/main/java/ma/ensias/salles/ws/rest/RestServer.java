@@ -1,5 +1,6 @@
 package ma.ensias.salles.ws.rest;
 
+import ma.ensias.salles.socket.rt.NotificationServer;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -11,9 +12,14 @@ public class RestServer {
     public static final String BASE_URI = "http://localhost:8081/api/";
 
     public static HttpServer startServer() {
+        // start NotificationServer in background
+        new Thread(NotificationServer.getInstance()).start();
+
         ResourceConfig rc = new ResourceConfig()
                 .packages("ma.ensias.salles.ws.rest");
         rc.register(AdminSalleResource.class); // Register the admin resource
+        rc.register(AdminReservationResource.class); // Register the admin reservation resource
+        rc.register(ReservationResource.class); // Register the user reservation resource
         return GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
     }
 
