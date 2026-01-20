@@ -13,6 +13,7 @@ public class RestServer {
     public static HttpServer startServer() {
         ResourceConfig rc = new ResourceConfig()
                 .packages("ma.ensias.salles.ws.rest");
+        rc.register(AdminSalleResource.class); // Register the admin resource
         return GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
     }
 
